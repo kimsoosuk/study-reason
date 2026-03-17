@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>수석의 공부법 기본편 — 공부하는 이유</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
     rel="stylesheet">
@@ -26,8 +27,8 @@
       --spine: #1e180f;
       --gold: #c4a44a;
       --gold-dim: #8a7432;
-      --font-serif: 'Nanum Myeongjo', 'Batang', serif;
-      --font-sans: 'Noto Sans KR', sans-serif;
+      --font-serif: 'Nanum Myeongjo', 'Noto Serif KR', 'Batang', '바탕', 'Georgia', serif;
+      --font-sans: 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
     }
 
     *,
@@ -41,6 +42,8 @@
     html {
       font-size: 16px;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     body {
@@ -1086,6 +1089,13 @@
 
     function showInputArea() { chatInputArea.classList.remove("hidden"); chatActions.classList.add("hidden"); }
     function showActions() { chatInputArea.classList.add("hidden"); chatActions.classList.remove("hidden"); }
+
+    function isLazy(text) {
+      var t = text.trim();
+      if (t.length <= 2) return true;
+      if (/^(ㅇㅇ|ㅎㅎ|ㅋㅋ|몰라|그냥|네|응|ㅇ|ㅎ|음|뭐|글쎄|모름|없음|됐어|아|어|ㄴ|ㄱ|ㅁ)$/i.test(t)) return true;
+      return false;
+    }
 
     function startChat(gateId, ctx, initialText, final) {
       chatHistory = []; chatMessages.innerHTML = ''; chatContext = ctx;

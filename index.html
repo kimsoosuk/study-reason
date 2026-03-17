@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수석의 공부법 기본편 — 공부하는 이유</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   CSS Variables & Reset
+   ═══════════════════════════════════════════ */
+:root {
+  --paper: #faf6ee;
+  --paper-dark: #f0ead6;
+  --ink: #2c2416;
+  --ink-light: #5a4d3a;
+  --accent: #8b6914;
+  --accent-soft: #c9a84c;
+  --red: #b83232;
+  --blue: #2a5a8c;
+  --spine: #3d2e1a;
+  --shadow: rgba(44, 36, 22, 0.15);
+  --chat-bg: #f7f4ed;
+  --chat-user: #e8dcc8;
+  --chat-ai: #fff;
+  --radius: 4px;
+  --font-serif: 'Nanum Myeongjo', serif;
+  --font-sans: 'Noto Sans KR', sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  background: #d6cfc0;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(180,160,120,0.2), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(160,140,100,0.15), transparent 60%);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   Book Container
+   ═══════════════════════════════════════════ */
+.book-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1100px;
+  padding: 20px 60px;
+  gap: 0;
+}
+
+.book {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  aspect-ratio: 1.45 / 1;
+  background: var(--paper);
+  border-radius: 6px 12px 12px 6px;
+  box-shadow:
+    0 2px 8px var(--shadow),
+    0 12px 40px rgba(44,36,22,0.2),
+    inset 0 0 60px rgba(44,36,22,0.03);
+  overflow: hidden;
+}
+
+/* Spine shadow */
+.book::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 40px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg,
+    rgba(44,36,22,0.08) 0%,
+    rgba(44,36,22,0.15) 30%,
+    rgba(44,36,22,0.22) 50%,
+    rgba(44,36,22,0.15) 70%,
+    rgba(44,36,22,0.08) 100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Page top edge texture */
+.book::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--paper-dark) 0%, var(--paper) 5%, var(--paper-dark) 10%,
+    var(--paper) 20%, var(--paper-dark) 30%, var(--paper) 50%,
+    var(--paper-dark) 70%, var(--paper) 80%, var(--paper-dark) 95%,
+    var(--paper) 100%);
+  z-index: 11;
+}
+
+.page {
+  flex: 1;
+  padding: 40px 44px;
+  overflow-y: auto;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-soft) transparent;
+}
+
+.page::-webkit-scrollbar { width: 4px; }
+.page::-webkit-scrollbar-thumb { background: var(--accent-soft); border-radius: 2px; }
+
+.page-left {
+  border-right: 1px solid rgba(44,36,22,0.08);
+  background: linear-gradient(90deg, var(--paper) 0%, var(--paper) 95%, var(--paper-dark) 100%);
+}
+
+.page-right {
+  background: linear-gradient(90deg, var(--paper-dark) 0%, var(--paper) 5%, var(--paper) 100%);
+}
+
+/* Page number */
+.page-num {
+  position: absolute;
+  bottom: 16px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  opacity: 0.5;
+}
+.page-left .page-num { left: 44px; }
+.page-right .page-num { right: 44px; }
+
+/* ═══════════════════════════════════════════
+   Navigation Arrows
+   ═══════════════════════════════════════════ */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 80px;
+  border: none;
+  background: rgba(44,36,22,0.06);
+  color: var(--ink-light);
+  font-size: 1.4rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+.nav-btn:hover { background: rgba(44,36,22,0.12); color: var(--ink); }
+.nav-btn:disabled { opacity: 0.2; cursor: default; }
+.nav-prev { left: 8px; }
+.nav-next { right: 8px; }
+
+/* ═══════════════════════════════════════════
+   Typography inside pages
+   ═══════════════════════════════════════════ */
+.page h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.page h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+.page p {
+  font-size: 0.92rem;
+  line-height: 1.85;
+  margin-bottom: 12px;
+  text-align: justify;
+  word-break: keep-all;
+}
+.page .subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+
+.page .highlight {
+  background: linear-gradient(180deg, transparent 55%, rgba(201,168,76,0.25) 55%);
+  padding: 0 2px;
+}
+
+.page .quote-box {
+  border-left: 3px solid var(--accent-soft);
+  padding: 12px 16px;
+  margin: 16px 0;
+  background: rgba(201,168,76,0.06);
+  font-style: italic;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.page .step-list {
+  margin: 12px 0;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.page .step-list li {
+  counter-increment: step;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin-bottom: 6px;
+  padding-left: 28px;
+  position: relative;
+}
+.page .step-list li::before {
+  content: counter(step) ".";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Probability funnel */
+.funnel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+.funnel-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.funnel-circle {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+}
+.funnel-label {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  color: var(--ink-light);
+  text-align: center;
+  max-width: 70px;
+}
+.funnel-arrow {
+  font-size: 1rem;
+  color: var(--ink-light);
+  margin: 0 2px;
+  align-self: center;
+}
+
+/* Purpose table */
+.purpose-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.78rem;
+  font-family: var(--font-sans);
+}
+.purpose-table th {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 8px;
+  font-weight: 500;
+  text-align: center;
+}
+.purpose-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(44,36,22,0.1);
+  line-height: 1.5;
+  vertical-align: top;
+}
+.purpose-table tr:nth-child(even) td {
+  background: rgba(44,36,22,0.02);
+}
+
+/* ═══════════════════════════════════════════
+   Input Box (학생 답변 영역)
+   ═══════════════════════════════════════════ */
+.answer-area {
+  margin: 16px 0;
+  border: 2px dashed var(--accent-soft);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255,255,255,0.5);
+  position: relative;
+}
+.answer-area label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.answer-area label::before {
+  content: '✏️ ';
+}
+.answer-area textarea {
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid rgba(44,36,22,0.15);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: #fff;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.answer-area textarea:focus {
+  border-color: var(--accent);
+}
+.answer-area textarea::placeholder {
+  color: #b8a88a;
+}
+.submit-btn {
+  margin-top: 10px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.submit-btn:hover { background: var(--spine); }
+.submit-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ═══════════════════════════════════════════
+   Chat Panel (슬라이드)
+   ═══════════════════════════════════════════ */
+.chat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(44,36,22,0.4);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.chat-overlay.open { opacity: 1; pointer-events: auto; }
+
+.chat-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(440px, 92vw);
+  background: var(--chat-bg);
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -8px 0 30px rgba(44,36,22,0.2);
+}
+.chat-panel.open { transform: translateX(0); }
+
+.chat-header {
+  padding: 16px 20px;
+  background: var(--spine);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+}
+.chat-header h3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.chat-close {
+  background: none;
+  border: none;
+  color: var(--paper);
+  font-size: 1.3rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.chat-close:hover { opacity: 1; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  word-break: keep-all;
+  animation: bubbleIn 0.3s ease-out;
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-bubble.user {
+  align-self: flex-end;
+  background: var(--chat-user);
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble.ai {
+  align-self: flex-start;
+  background: var(--chat-ai);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.chat-bubble.typing {
+  align-self: flex-start;
+  background: var(--chat-ai);
+  border-bottom-left-radius: 4px;
+}
+.typing-dots span {
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--ink-light);
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: dot-bounce 1.2s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.chat-input-area {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(44,36,22,0.1);
+  display: flex;
+  gap: 8px;
+  background: #fff;
+}
+.chat-input-area input {
+  flex: 1;
+  border: 1px solid rgba(44,36,22,0.15);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  outline: none;
+}
+.chat-input-area input:focus { border-color: var(--accent); }
+.chat-send {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.chat-send:hover { background: var(--spine); }
+.chat-send:disabled { opacity: 0.4; cursor: default; }
+
+/* ═══════════════════════════════════════════
+   Footer
+   ═══════════════════════════════════════════ */
+.book-footer {
+  margin-top: 12px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: rgba(44,36,22,0.4);
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  body { justify-content: flex-start; padding-top: 8px; }
+  .book-wrapper { padding: 8px 12px; }
+  .book {
+    flex-direction: column;
+    aspect-ratio: auto;
+    min-height: 80dvh;
+    border-radius: 8px;
+  }
+  .book::before { display: none; }
+  .page { padding: 24px 20px; }
+  .page-left { border-right: none; border-bottom: 1px solid rgba(44,36,22,0.08); }
+  .page-left .page-num { left: 20px; }
+  .page-right .page-num { right: 20px; }
+  .nav-btn { width: 36px; height: 60px; font-size: 1.1rem; }
+  .nav-prev { left: 2px; }
+  .nav-next { right: 2px; }
+  .funnel { gap: 2px; }
+  .funnel-circle { width: 36px!important; height: 36px!important; font-size: 0.6rem!important; }
+  .funnel-label { font-size: 0.55rem; max-width: 50px; }
+}
+
+/* Hidden helper */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     BOOK STRUCTURE
+     ═══════════════════════════════════════════ -->
+<div class="book-wrapper">
+  <button class="nav-btn nav-prev" id="prevBtn" aria-label="이전 페이지">◂</button>
+
+  <div class="book" id="book">
+    <div class="page page-left" id="pageLeft"></div>
+    <div class="page page-right" id="pageRight"></div>
+  </div>
+
+  <button class="nav-btn nav-next" id="nextBtn" aria-label="다음 페이지">▸</button>
+</div>
+
+<div class="book-footer">ⓒ 수석의 방 · 수석의 공부법 기본편</div>
+
+<!-- ═══════════════════════════════════════════
+     CHAT OVERLAY & PANEL
+     ═══════════════════════════════════════════ -->
+<div class="chat-overlay" id="chatOverlay"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <h3>💬 김수석 선생님과 대화</h3>
+    <button class="chat-close" id="chatClose">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." autocomplete="off">
+    <button class="chat-send" id="chatSend" aria-label="보내기">➤</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   Configuration
+   ═══════════════════════════════════════════ */
+const API_URL = "https://study-reason.kimsoosuk1.workers.dev/api/chat";
+
+/* ═══════════════════════════════════════════
+   Page Content Data
+   ═══════════════════════════════════════════ */
+const pages = [
+  // ──── Page 0: 표지 ────
+  {
+    html: `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;">
+        <p class="subtitle" style="margin-bottom:12px;">수석의 공부법 기본편</p>
+        <h1 style="font-size:1.8rem;margin-bottom:4px;">공부하는 이유</h1>
+        <div style="width:40px;height:2px;background:var(--accent);margin:16px auto;"></div>
+        <p style="font-size:0.82rem;color:var(--ink-light);text-align:center;">ⓒ 수석의 방</p>
+      </div>
+    `
+  },
+  // ──── Page 1: 질문으로 시작 ────
+  {
+    html: `
+      <p class="subtitle">CHAPTER 01</p>
+      <h2>공부를 왜 하나요?</h2>
+      <p>오늘은 간단한 질문으로 시작해볼게요.</p>
+      <p>여러분, 공부를 왜 하나요?</p>
+      <p>우리 매일 학교와 학원과 인강, 자습 등등 공부를 많이 하잖아요. 나는 왜 공부를 하고 있을까?</p>
+      <p>이 글을 읽기 전에 먼저 내가 생각하는 공부의 이유를 <span class="highlight">3가지만</span> 아래 빈 칸에 적어봅시다.</p>
+      <div class="answer-area">
+        <label>내가 공부하는 이유 3가지</label>
+        <textarea id="answer1" placeholder="1. &#10;2. &#10;3. "></textarea>
+        <button class="submit-btn" onclick="submitAnswer('answer1', '공부하는 이유 3가지를 물어보는 첫 질문')">선생님과 이야기하기</button>
+      </div>
+    `
+  },
+  // ──── Page 2: 흔한 대답 ────
+  {
+    html: `
+      <h2>가장 흔한 대답</h2>
+      <p>어때요? 잘 적을 수 있었나요?</p>
+      <p>'그냥 하는데 딱히 이유랄 게 있나?' 싶을 수도 있고 '대학 때문에 공부하는 거죠.'라고 할 수도 있어요. 3가지를 적는 것이 쉽지 않았을 수 있고요.</p>
+      <p>그 중 아무래도 가장 흔히 생각하고 주변에서도 많이 듣는 말은 <span class="highlight">'좋은 대학에 가려고'</span>일 거예요.</p>
+      <p>그럼 왜 좋은 대학에 가려 하나요? 아마 '좋은 회사에 가서 돈 많이 벌고 잘 살려고요.'라고 대답하는 학생이 많을 겁니다.</p>
+      <p>결국 돈을 잘 벌고 잘 살아서 행복하기 위해 공부, 대학, 취업을 거치는 것이 일반적이어 보이고 주변에서도 그런 경우를 많이 보았을 거예요.</p>
+      <p>그런데 <span class="highlight">정말 공부를 열심히 하면 좋은 대학에 가서 좋은 직장에 간 후 돈을 잘 벌어서 행복할까요?</span></p>
+      <p>여전히 '공부를 왜 해야하는가?'에 대한 대답으로는 조금 부족해보여요. 우리 한 번 팩트 체크를 해봅시다.</p>
+    `
+  },
+  // ──── Page 3: 4단계 논리 ────
+  {
+    html: `
+      <h2>팩트 체크</h2>
+      <p>방금 말한 이야기를 정리해보면 이렇습니다.</p>
+      <ol class="step-list">
+        <li>공부를 열심히 하면 공부를 잘한다.</li>
+        <li>공부를 잘하면 좋은 대학에 들어간다.</li>
+        <li>좋은 대학에 들어가면 좋은 직장에 간다.</li>
+        <li>좋은 직장에 가면 풍족하고 행복한 삶을 산다.</li>
+      </ol>
+      <p>그런데 현실에서 이 순서대로 진행될 확률은 얼마나 될까요? 수학적으로 한 번 체크해보자고요.</p>
+      <p>우선 공부를 열심히 하는 학생 중 절반이 공부를 잘하게 된다고 합시다. (실제로는 절반보다 훨씬 적을 수도 있지만요.)</p>
+      <p>다음으로 공부를 잘하더라도 전부 목표하는 대학에 가게 되는 것은 아니죠. 후하게 쳐서 절반이 원하는 대학에 간다고 해봅시다.</p>
+      <p>세번째, 좋은 대학을 나오면 좋은 직장을 얻을 수 있을까요? 이번에도 절반 정도 가능하다고 해볼게요.</p>
+    `
+  },
+  // ──── Page 4: 확률 계산 ────
+  {
+    html: `
+      <h2>확률 계산</h2>
+      <p>마지막으로 좋은 직장에 가면 쭉 지속적으로 다니면서 돈을 잘 벌고 풍족하고 행복하게 될까? 모두 그렇지는 않아요. 이것도 절반 정도가 그렇게 된다고 해봅시다.</p>
+      <div class="funnel">
+        <div class="funnel-step">
+          <div class="funnel-circle" style="width:56px;height:56px;font-size:0.8rem;">100%</div>
+          <div class="funnel-label">공부를 열심히 함</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="funnel-circle" style="width:48px;height:48px;font-size:0.75rem;">50%</div>
+          <div class="funnel-label">공부를 잘하게 됨</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="funnel-circle" style="width:42px;height:42px;font-size:0.7rem;">25%</div>
+          <div class="funnel-label">좋은 대학에 감</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="funnel-circle" style="width:36px;height:36px;font-size:0.65rem;">12%</div>
+          <div class="funnel-label">좋은 직장에 감</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="funnel-circle" style="width:30px;height:30px;font-size:0.6rem;background:var(--red);">6%</div>
+          <div class="funnel-label">행복함</div>
+        </div>
+      </div>
+      <p>이렇게 계산해보면 100명이 열심히 공부해서 풍족하고 행복한 삶을 사는 비율은 <span class="highlight">6명 정도</span>가 된다는 걸 알 수 있어요.</p>
+      <p>조금 더 냉정하게, 각 단계의 확률이 절반이 아니라 1/3이라고 한다면 <span class="highlight">약 1.2%</span>만이 이 과정을 거쳐서 행복하게 잘 살 수 있어요.</p>
+      <p style="font-size:0.82rem;color:var(--ink-light);">(분수 계산은 직접 해봅시다. 1/3을 4번 곱하면 몇이 될까?)</p>
+    `
+  },
+  // ──── Page 5: 시대가 변했다 ────
+  {
+    html: `
+      <h2>시대가 변했습니다</h2>
+      <p>공부를 열심히 한 100명 중에 오직 1명만 행복해진다니! 확률이 너무 낮아보여요.</p>
+      <p>그렇다면 이런 이야기가 왜 지금 우리에게 자연스럽게 받아들여지고 있는 걸까요?</p>
+      <p>왜냐하면 우리를 가르치시는 선생님과 부모님께서 우리처럼 학생이었던 시절에는 이것이 가능했기 때문이에요.</p>
+      <p>그 때는 대학교를 가기가 지금보다 훨씬 어려웠어서 대학교만 나오면 훌륭한 인재로 인정받았어요. 또 좋은 회사에 한 번 들어가면 정년퇴직을 할 때까지 승진을 거듭하며 꽤 안정적으로 다닐 수 있었죠.</p>
+      <p><span class="highlight">지금은 시대가 변했습니다.</span></p>
+      <p>지금 여러분들이 본격적으로 사회에 나가는 10~20년 후에는 사회가 더 변할 거예요. 대학 졸업은 우리 부모님 세대만큼 인정받지 못하고, 세상에 새로운 직업이 수시로 만들어질 거예요.</p>
+      <p>그럼 한 번 다시 생각해봅시다. 우리는 공부를 왜 해야할까? 공부를 하면 뭐가 좋을까?</p>
+    `
+  },
+  // ──── Page 6: 저자의 이야기 ────
+  {
+    html: `
+      <h2>제 이야기를 해볼게요</h2>
+      <p>저는 초등학교 6학년 때 사회 과목 공부를 하다가 문득 이런 생각이 들었습니다.</p>
+      <div class="quote-box">'이걸 왜 해야하지?'</div>
+      <p>너무 지루한 거예요. 그 때는 교과서가 흑백으로 된 책이었고 학년이 올라가면서 공부량도 점점 늘어나니까 부담이 되는 거죠.</p>
+      <p>그래서 잠시 책을 덮고 생각해보았습니다. 그리고 간단하지만 제 자신을 설득할 답을 찾았어요.</p>
+      <div class="quote-box">'안 하는 것 보단 하는 게 낫겠네.'</div>
+      <p>안 하면 아무것도 나아지는 게 없는데, 하면 뭐라도 새로 알게 되고 나아지게 되니까 '하는 것'이 '안 하는 것'보다 더 낫겠다고 생각한 거죠.</p>
+      <p>놀라운 건 이 생각 하나가 저를 중고등학교, 심지어 대학까지 <span class="highlight">전교 1등</span>을 만들어준 기틀이 되었다는 거예요.</p>
+    `
+  },
+  // ──── Page 7: 목적이 바뀌면 ────
+  {
+    html: `
+      <h2>목적이 바뀌면?</h2>
+      <p>그렇게 '나에게 도움이 되는 일이라 생각하며' 스스로 공부를 해나갔답니다.</p>
+      <p>그러던 어느 날… 고등학교 3학년이 되고 나서 한 번 생각을 바꿔봤어요.</p>
+      <div class="quote-box">'이제 고3이니까 앞으로 1년간은 나를 위한 공부보다 대학교 입시를 위해서 공부를 해야하지 않을까?'</div>
+      <p>공부의 이유와 목적이 <span class="highlight">'나'에서 '대학교 입학'</span>으로 바뀐 것이죠.</p>
+      <p>경험한 첫번째 차이는 공부가 점점 <span class="highlight">재미없고 힘들어진다</span>는 거였어요. '이걸 안 하면 대입에 안 좋을텐데 어떻게든 해야지.'라고 바뀐 거예요.</p>
+      <p>'나에게 도움이 되니까'라는 나를 위한 목적에서 '대학을 잘 가야지'라는 대학을 위한 목적으로 바뀌며 <span class="highlight">공부의 중심에서 내가 사라진 거예요.</span></p>
+      <p>또 하나 달라진 점은, <span class="highlight">공부 효율이 떨어졌다</span>는 거예요. 고1, 고2보다 공부량은 더 늘었고 더 열심히 하는데 효율은 점점 떨어졌죠.</p>
+    `
+  },
+  // ──── Page 8: 남의 것 vs 내 것 (표) ────
+  {
+    html: `
+      <h2>'남'을 위한 목적의 결과</h2>
+      <p>공부 자체에 목적이 있기 보다는 다른 것들을 위해 공부를 한 거예요. 중심에 '나'가 없으니 결과적으로 나에게 도움이 되지 않았죠.</p>
+      <table class="purpose-table">
+        <thead><tr><th>목적</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>부모님과 선생님께 혼나지 않으려고</td><td>혼은 안 났지만, 졸업하거나 성인이 되면 아무 의미가 없어진다.</td></tr>
+          <tr><td>부모님을 기쁘게 해드리기 위해</td><td>부모님은 좋아하시지만, 나는 힘들 때가 많고 점점 지치는 느낌이다.</td></tr>
+          <tr><td>친구들이 다 하니까</td><td>비슷한 수준이 되었다. 하지만 나는 대체 뭘 잘하는지 모르겠다.</td></tr>
+          <tr><td>친구들에게 지지 않으려고</td><td>좋은 성적을 받았다. 하지만 그렇지 못한 경우도 많고, 졸업하면 의미가 없다.</td></tr>
+          <tr><td>별 생각 없이 그냥</td><td>내가 뭘 좋아하는지, 앞으로 뭘 해야 할지 모르겠고 공부가 의미 없게 느껴진다.</td></tr>
+          <tr><td>좋은 대학에 가기 위해</td><td>원하는 대학에 입학했다. 하지만 앞으로는 무엇을 해야 할지 잘 모르겠다.</td></tr>
+        </tbody>
+      </table>
+    `
+  },
+  // ──── Page 9: '나'를 위한 목적 (표) ────
+  {
+    html: `
+      <h2>'나'를 위한 목적의 결과</h2>
+      <p>하지만 공부의 목적을 아래와 같이 생각한다면 어떨까요?</p>
+      <table class="purpose-table">
+        <thead><tr><th>목적</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>내가 좋아하는 것(적성)을 찾고 싶어서</td><td>나 자신이 무엇을 좋아하는지 알게 되었다. 공부할수록 더 많이 발견된다.</td></tr>
+          <tr><td>하고싶은 것을 잘 하기 위해</td><td>원하던 직업을 갖게 되었고, 이와 관련된 일을 할 수 있다.</td></tr>
+          <tr><td>무언가 알게 되는 것 자체가 즐거워서</td><td>즐겁다. 더 많이 알수록 즐거움이 커진다. 나도 모르는 사이에 아는 게 많아졌다.</td></tr>
+        </tbody>
+      </table>
+      <p>공부의 목적과 중심에 '나'가 있으면 그 결과가 '나'에게 돌아옵니다. 생각만 달라져도 똑같이 열심히 공부했을 때 나에게 도움이 되는 결과가 더 많이 생기는 겁니다.</p>
+      <p>핵심은 <span class="highlight">공부의 목적이 '내 것이냐, 남의 것이냐'</span>의 차이였어요.</p>
+      <p>부모님, 선생님, 대학교, 친구와의 경쟁 등 남으로부터 생긴 공부의 목적의 중심에는 내가 없어요. 반면, 공부의 목적을 '내가 좋아지기 위함'으로 정하면 내가 무엇을 잘하고, 좋아하는지 발견할 수 있어요.</p>
+    `
+  },
+  // ──── Page 10: 내 공부의 목적 쓰기 ────
+  {
+    html: `
+      <h2>내 공부의 목적은?</h2>
+      <p>그래서 결과가 더 좋은 겁니다. 간단하지만 굉장히 큰 차이입니다. 똑같이 10시간을 공부해도 공부의 목적이 뭐라고 생각하느냐에 따라 결과가 크게 달라지니까요.</p>
+      <p>그렇다면 다시 한 번 생각해봅시다.</p>
+      <p><span class="highlight">'내'가 중심이 되는 공부의 목적</span>은 뭐라고 써볼 수 있을까요? 누가 뭐래도 나에게 도움이 되고 내가 좋아지는 공부의 목적을 써본다면?</p>
+      <div class="answer-area">
+        <label>나를 위한 공부의 목적</label>
+        <textarea id="answer2" placeholder="내가 공부를 하면 나에게 좋은 점은..."></textarea>
+        <button class="submit-btn" onclick="submitAnswer('answer2', '나를 위한 공부 목적을 쓰는 질문')">선생님과 이야기하기</button>
+      </div>
+    `
+  },
+  // ──── Page 11: 공부자존감 ────
+  {
+    html: `
+      <h2>공부자존감</h2>
+      <p>오늘 한 연습은 '공부는 왜 하는지'를 나만의 언어로 찾는 과정이었어요. 막연히 '공부해야지'가 아니라, '아, 내가 공부를 잘하면 이런 게 좋아지겠구나.' 하는 멘탈 세팅을 한 거죠.</p>
+      <p>그 힘이 바로 <span class="highlight">'이 공부는 나를 위해 하는 내 공부임을 인식하는 것'</span>이고, 저는 이걸 <span class="highlight">'공부자존감'</span>이라 불러요.</p>
+      <p>어차피 공부하는데 이 '공부자존감'을 가지고 공부해봅시다.</p>
+      <p>공부 시간이 같아도 거짓말처럼 나에게 더 실력이 되어 돌아옵니다. 노력 없이 공부의 효율을 높이는 가장 좋은 방법은 바로 이 거예요.</p>
+      <div class="quote-box">공부를 하면 나에게 뭐가 좋아질까?<br>에 대한 답을 정하는 것. 이것부터 시작해보세요.</div>
+      <p>앞으로 공부하기 싫거나 공부하다 지쳤을 때, 내가 생각한 공부의 목적을 한 번 떠올려 보세요. 다시 해야 할 이유가 생기고, 세운 계획을 꾸준히 지킬 힘이 생길 거예요.</p>
+      <div class="answer-area">
+        <label>오늘 배운 것을 한 줄로 정리해볼까요?</label>
+        <textarea id="answer3" placeholder="오늘 가장 기억에 남는 것은..."></textarea>
+        <button class="submit-btn" onclick="submitAnswer('answer3', '오늘 배운 내용 정리')">선생님과 이야기하기</button>
+      </div>
+    `
+  },
+];
+
+/* ═══════════════════════════════════════════
+   State
+   ═══════════════════════════════════════════ */
+let currentSpread = 0;
+const totalPages = pages.length;
+// spread = shows pages [i*2, i*2+1]
+const totalSpreads = Math.ceil(totalPages / 2);
+
+// Chat state
+let chatHistory = []; // Gemini format: [{role, parts}]
+let chatContext = "";
+let isChatLoading = false;
+
+/* ═══════════════════════════════════════════
+   Render Book
+   ═══════════════════════════════════════════ */
+const pageLeft = document.getElementById("pageLeft");
+const pageRight = document.getElementById("pageRight");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function renderSpread() {
+  const leftIdx = currentSpread * 2;
+  const rightIdx = currentSpread * 2 + 1;
+
+  if (leftIdx < totalPages) {
+    pageLeft.innerHTML = pages[leftIdx].html + `<div class="page-num">${leftIdx + 1}</div>`;
+    pageLeft.classList.remove("hidden");
+  } else {
+    pageLeft.innerHTML = "";
+    pageLeft.classList.add("hidden");
+  }
+
+  if (rightIdx < totalPages) {
+    pageRight.innerHTML = pages[rightIdx].html + `<div class="page-num">${rightIdx + 1}</div>`;
+    pageRight.classList.remove("hidden");
+  } else {
+    pageRight.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;opacity:0.3;font-size:0.85rem;text-align:center;">— 끝 —</div>';
+    pageRight.classList.remove("hidden");
+  }
+
+  prevBtn.disabled = currentSpread <= 0;
+  nextBtn.disabled = currentSpread >= totalSpreads - 1;
+
+  // Restore saved answers
+  restoreAnswers();
+}
+
+function restoreAnswers() {
+  ["answer1", "answer2", "answer3"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const saved = sessionStorage.getItem(id);
+      if (saved) el.value = saved;
+      el.addEventListener("input", () => {
+        sessionStorage.setItem(id, el.value);
+      });
+    }
+  });
+}
+
+prevBtn.addEventListener("click", () => {
+  if (currentSpread > 0) { currentSpread--; renderSpread(); }
+});
+nextBtn.addEventListener("click", () => {
+  if (currentSpread < totalSpreads - 1) { currentSpread++; renderSpread(); }
+});
+
+// Keyboard navigation
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") prevBtn.click();
+  if (e.key === "ArrowRight") nextBtn.click();
+});
+
+renderSpread();
+
+/* ═══════════════════════════════════════════
+   Chat Logic
+   ═══════════════════════════════════════════ */
+const chatOverlay = document.getElementById("chatOverlay");
+const chatPanel = document.getElementById("chatPanel");
+const chatClose = document.getElementById("chatClose");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+const chatSend = document.getElementById("chatSend");
+
+function openChat() {
+  chatOverlay.classList.add("open");
+  chatPanel.classList.add("open");
+  setTimeout(() => chatInput.focus(), 350);
+}
+
+function closeChat() {
+  chatOverlay.classList.remove("open");
+  chatPanel.classList.remove("open");
+}
+
+chatOverlay.addEventListener("click", closeChat);
+chatClose.addEventListener("click", closeChat);
+
+function addBubble(text, type) {
+  const div = document.createElement("div");
+  div.className = `chat-bubble ${type}`;
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function showTyping() {
+  const div = document.createElement("div");
+  div.className = "chat-bubble typing";
+  div.id = "typingIndicator";
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById("typingIndicator");
+  if (el) el.remove();
+}
+
+async function sendToAI(userText) {
+  if (isChatLoading) return;
+  isChatLoading = true;
+  chatSend.disabled = true;
+
+  // 첫 메시지에 컨텍스트 추가
+  let messageText = userText;
+  if (chatHistory.length === 0 && chatContext) {
+    messageText = `[CONTEXT: ${chatContext}] ${userText}`;
+  }
+
+  chatHistory.push({ role: "user", parts: [{ text: messageText }] });
+  showTyping();
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: chatHistory }),
+    });
+
+    removeTyping();
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      addBubble(err.error || "연결에 문제가 생겼어요. 다시 시도해주세요!", "ai");
+      chatHistory.pop();
+    } else {
+      const data = await res.json();
+      const reply = data.reply || "음, 잠시 생각해볼게요!";
+      chatHistory.push({ role: "model", parts: [{ text: reply }] });
+      addBubble(reply, "ai");
+    }
+  } catch {
+    removeTyping();
+    addBubble("인터넷 연결을 확인해주세요!", "ai");
+    chatHistory.pop();
+  }
+
+  isChatLoading = false;
+  chatSend.disabled = false;
+  chatInput.focus();
+}
+
+// Submit from answer area
+function submitAnswer(textareaId, context) {
+  const textarea = document.getElementById(textareaId);
+  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) {
+    textarea.focus();
+    textarea.style.borderColor = "var(--red)";
+    setTimeout(() => textarea.style.borderColor = "", 1500);
+    return;
+  }
+
+  // Reset chat for new submission
+  chatHistory = [];
+  chatMessages.innerHTML = "";
+  chatContext = context;
+
+  addBubble(text, "user");
+  openChat();
+  sendToAI(text);
+}
+// expose globally
+window.submitAnswer = submitAnswer;
+
+// Chat input handlers
+chatSend.addEventListener("click", () => {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  chatInput.value = "";
+  addBubble(text, "user");
+  sendToAI(text);
+});
+
+chatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    chatSend.click();
+  }
+});
+</script>
+</body>
+</html>                            

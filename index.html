@@ -56,8 +56,9 @@
       justify-content: center;
       font-family: var(--font-serif);
       color: var(--ink);
-      overflow: hidden;
-      padding: 12px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 20px;
     }
 
     .book-scene {
@@ -74,7 +75,7 @@
       display: flex;
       width: 100%;
       max-width: 1100px;
-      aspect-ratio: 1.38/1;
+      height: min(calc(100dvh - 60px), 760px);
       background: var(--cover);
       border-radius: 4px 10px 10px 4px;
       padding: 6px 6px 6px 0;
@@ -109,6 +110,7 @@
       overflow: hidden;
       position: relative;
       box-shadow: inset 2px 0 8px rgba(0, 0, 0, 0.06);
+      min-height: 0;
     }
 
     .book-pages::before {
@@ -176,6 +178,7 @@
       position: relative;
       scrollbar-width: none;
       z-index: 5;
+      min-height: 0;
     }
 
     .page::-webkit-scrollbar {
@@ -225,27 +228,26 @@
 
     .nav-btn {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 72px;
+      bottom: 14px;
+      width: 38px;
+      height: 38px;
       border: none;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(4px);
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 1.2rem;
+      background: #a89278;
+      color: #fff;
+      font-size: 1.05rem;
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: 50%;
       transition: all 0.25s;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 20;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
     .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-      color: #fff;
+      background: #bea68c;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
     }
 
     .nav-btn:disabled {
@@ -254,11 +256,11 @@
     }
 
     .nav-prev {
-      left: -56px;
+      left: 14px;
     }
 
     .nav-next {
-      right: -56px;
+      right: 14px;
     }
 
     /* Typography */
@@ -848,26 +850,31 @@
       letter-spacing: 0.06em;
     }
 
-    @media(max-width:820px) {
+    /* Single-page mode for narrow/portrait screens */
+    @media(max-width:860px) {
       body {
         justify-content: flex-start;
-        padding: 8px;
+        padding: 10px;
+      }
+
+      .book-scene {
+        padding: 0;
+        width: 100%;
       }
 
       .book-shell {
-        flex-direction: column;
-        aspect-ratio: auto;
-        min-height: 85dvh;
-        border-radius: 6px;
+        max-width: 100%;
+        height: calc(100dvh - 50px);
+        border-radius: 8px;
         padding: 4px 4px 6px;
+        flex-direction: column;
       }
 
       .book-spine {
         width: 100%;
         min-width: unset;
-        height: 14px;
-        min-height: 14px;
-        border-radius: 4px 4px 0 0;
+        flex: 0 0 12px;
+        border-radius: 6px 6px 0 0;
         background: linear-gradient(180deg, var(--spine), var(--cover-light), var(--cover));
         box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.3);
       }
@@ -877,26 +884,14 @@
       }
 
       .book-pages {
-        flex-direction: column;
-        border-radius: 0 0 4px 4px;
+        flex: 1;
+        flex-direction: row;
+        border-radius: 0 0 6px 6px;
+        min-height: 0;
       }
 
       .book-gutter {
-        top: 50%;
-        left: 0;
-        right: 0;
-        width: auto;
-        height: 40px;
-        transform: translateY(-50%);
-        background: linear-gradient(180deg, transparent, rgba(30, 24, 15, 0.04) 15%, rgba(30, 24, 15, 0.1) 50%, rgba(30, 24, 15, 0.04) 85%, transparent);
-      }
-
-      .book-gutter::after {
-        top: 50%;
-        left: 2%;
-        right: 2%;
-        width: auto;
-        height: 1px;
+        display: none;
       }
 
       .book-edge-right,
@@ -906,33 +901,36 @@
       }
 
       .page {
-        padding: 20px 18px 36px;
+        padding: 28px 24px 48px;
+        flex: 1;
+        min-height: 0;
       }
 
       .page-left .page-num {
-        left: 18px;
+        left: 24px;
       }
 
       .page-right .page-num {
-        right: 18px;
+        right: 24px;
+      }
+
+      .page-right.single-hidden {
+        display: none !important;
       }
 
       .nav-btn {
         width: 32px;
-        height: 56px;
-        font-size: 1rem;
+        height: 32px;
+        font-size: 0.95rem;
+        bottom: 8px;
       }
 
       .nav-prev {
-        left: -38px;
+        left: 8px;
       }
 
       .nav-next {
-        right: -38px;
-      }
-
-      .book-scene {
-        padding: 0 38px;
+        right: 8px;
       }
 
       .funnel-circle {
@@ -953,8 +951,9 @@
 
 <body>
   <div class="book-scene">
-    <button class="nav-btn nav-prev" id="prevBtn" aria-label="이전 페이지">‹</button>
     <div class="book-shell">
+      <button class="nav-btn nav-prev" id="prevBtn" aria-label="이전 페이지">‹</button>
+      <button class="nav-btn nav-next" id="nextBtn" aria-label="다음 페이지">›</button>
       <div class="book-spine"></div>
       <div class="book-pages">
         <div class="book-gutter"></div>
@@ -963,7 +962,6 @@
         <div class="page page-right" id="pageRight"></div>
       </div>
     </div>
-    <button class="nav-btn nav-next" id="nextBtn" aria-label="다음 페이지">›</button>
   </div>
   <div class="book-footer">ⓒ 수석의방 · 수석의 공부법 기본편</div>
 
@@ -1014,29 +1012,66 @@
     ];
 
     // State
-    let currentSpread = 0, gateCleared = {}; // gateCleared[answerId] = true when chat completed
-    const totalSpreads = Math.ceil(pages.length / 2);
+    let currentPage = 0, gateCleared = {};
     const $ = id => document.getElementById(id);
     const pageLeft = $("pageLeft"), pageRight = $("pageRight"), prevBtn = $("prevBtn"), nextBtn = $("nextBtn");
 
-    function isSpreadGated(spread) {
-      const li = spread * 2, ri = spread * 2 + 1;
-      for (const idx of [li, ri]) {
-        if (idx < pages.length && pages[idx].gate && !gateCleared[pages[idx].gate]) return true;
-      }
+    function isSingleMode() { return window.innerWidth <= 860; }
+
+    function isPageGated(pageIdx) {
+      if (pageIdx < pages.length && pages[pageIdx].gate && !gateCleared[pages[pageIdx].gate]) return true;
       return false;
     }
 
-    function renderSpread() {
-      const li = currentSpread * 2, ri = currentSpread * 2 + 1;
-      if (li < pages.length) { pageLeft.innerHTML = pages[li].html + `<div class="page-num">${li + 1}</div>`; pageLeft.classList.remove("hidden"); }
-      else { pageLeft.innerHTML = ""; pageLeft.classList.add("hidden"); }
-      if (ri < pages.length) { pageRight.innerHTML = pages[ri].html + `<div class="page-num">${ri + 1}</div>`; pageRight.classList.remove("hidden"); }
-      else if (li < pages.length) { pageRight.innerHTML = '<div style="height:100%"></div>'; pageRight.classList.remove("hidden"); }
-      prevBtn.disabled = currentSpread <= 0;
-      nextBtn.disabled = currentSpread >= totalSpreads - 1 || isSpreadGated(currentSpread);
-      pageLeft.scrollTop = 0; pageRight.scrollTop = 0;
+    // In spread mode: currentPage is always even (left page index). Shows currentPage & currentPage+1.
+    // In single mode: currentPage is the single page index.
+
+    function render() {
+      const single = isSingleMode();
+      if (single) {
+        // Single page mode
+        pageLeft.innerHTML = pages[currentPage].html + `<div class="page-num">${currentPage + 1}</div>`;
+        pageLeft.classList.remove("hidden");
+        pageRight.classList.add("hidden");
+        pageRight.classList.add("single-hidden");
+        prevBtn.disabled = currentPage <= 0;
+        // Can't go forward if current page is gated
+        const nextIdx = currentPage + 1;
+        nextBtn.disabled = currentPage >= pages.length - 1 || isPageGated(currentPage);
+        pageLeft.scrollTop = 0;
+      } else {
+        // Spread mode — ensure currentPage is even
+        if (currentPage % 2 !== 0) currentPage = Math.max(0, currentPage - 1);
+        const li = currentPage, ri = currentPage + 1;
+        if (li < pages.length) { pageLeft.innerHTML = pages[li].html + `<div class="page-num">${li + 1}</div>`; pageLeft.classList.remove("hidden"); }
+        else { pageLeft.innerHTML = ""; pageLeft.classList.add("hidden"); }
+        pageRight.classList.remove("single-hidden");
+        if (ri < pages.length) { pageRight.innerHTML = pages[ri].html + `<div class="page-num">${ri + 1}</div>`; pageRight.classList.remove("hidden"); }
+        else if (li < pages.length) { pageRight.innerHTML = '<div style="height:100%"></div>'; pageRight.classList.remove("hidden"); }
+        prevBtn.disabled = currentPage <= 0;
+        const nextSpreadStart = currentPage + 2;
+        nextBtn.disabled = nextSpreadStart >= pages.length + 1 || isPageGated(currentPage) || isPageGated(currentPage + 1);
+        pageLeft.scrollTop = 0; pageRight.scrollTop = 0;
+      }
       restoreAnswers(); bindSubmitButtons();
+    }
+
+    function goNext() {
+      const single = isSingleMode();
+      if (single) {
+        if (currentPage < pages.length - 1 && !isPageGated(currentPage)) { currentPage++; render(); }
+      } else {
+        const nextStart = currentPage + 2;
+        if (nextStart < pages.length + 1 && !isPageGated(currentPage) && !isPageGated(currentPage + 1)) { currentPage = nextStart; render(); }
+      }
+    }
+    function goPrev() {
+      const single = isSingleMode();
+      if (single) {
+        if (currentPage > 0) { currentPage--; render(); }
+      } else {
+        if (currentPage >= 2) { currentPage -= 2; render(); }
+      }
     }
 
     function restoreAnswers() {
@@ -1057,10 +1092,11 @@
       });
     }
 
-    prevBtn.onclick = () => { if (currentSpread > 0) { currentSpread--; renderSpread(); } };
-    nextBtn.onclick = () => { if (currentSpread < totalSpreads - 1 && !isSpreadGated(currentSpread)) { currentSpread++; renderSpread(); } };
-    document.addEventListener("keydown", e => { if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return; if (e.key === "ArrowLeft") prevBtn.click(); if (e.key === "ArrowRight") nextBtn.click(); });
-    renderSpread();
+    prevBtn.onclick = goPrev;
+    nextBtn.onclick = goNext;
+    document.addEventListener("keydown", e => { if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return; if (e.key === "ArrowLeft") goPrev(); if (e.key === "ArrowRight") goNext(); });
+    window.addEventListener("resize", render);
+    render();
 
     // ═══ CHAT ═══
     const chatOverlay = $("chatOverlay"), chatPanel = $("chatPanel"), chatClose = $("chatClose"), chatMessages = $("chatMessages"), chatInput = $("chatInput"), chatSend = $("chatSend"), chatActions = $("chatActions"), chatInputArea = $("chatInputArea"), btnMoreChat = $("btnMoreChat"), btnNextPage = $("btnNextPage"), turnBar = $("turnBar"), turnDots = $("turnDots");
@@ -1172,7 +1208,7 @@
       gateCleared[currentGateId] = true;
       closeChat();
       if (isFinalQuestion) { generateSummary(); }
-      else { currentSpread++; renderSpread(); }
+      else { goNext(); }
     };
 
     // ═══ SUMMARY ═══
@@ -1202,7 +1238,7 @@
     }
 
     function showSummary(s, all) {
-      pageLeft.innerHTML = `
+      var recordHtml = `
     <div class="running-header">수석의 공부법 기본편 · 총평</div><div class="page-header-line"></div>
     <h2>오늘의 기록</h2>
     <div class="summary-content">
@@ -1213,15 +1249,26 @@
       <div class="s-label">Q3. 오늘 배운 것 정리</div>
       <div class="s-block">${(all.answer3 || '(미작성)').replace(/\n/g, '<br>')}</div>
     </div>`;
-      pageRight.innerHTML = `
-    <div class="running-header">수석의 공부법 기본편 · 총평</div><div class="page-header-line"></div>
-    <h2>김수석 선생님의 한마디</h2>
+      var commentHtml = `
+    <h2 style="margin-top:24px;">김수석 선생님의 한마디</h2>
     <div class="summary-content">
       <p>${s.summary_left}</p>
       <p>${s.summary_right}</p>
       <div class="quote-box" style="margin-top:18px;">${s.one_line}</div>
     </div>
     <button class="dl-btn" onclick="downloadPDF()">PDF로 저장하기</button>`;
+      if (isSingleMode()) {
+        pageLeft.innerHTML = recordHtml + commentHtml;
+        pageLeft.classList.remove("hidden");
+        pageRight.classList.add("hidden");
+        pageRight.classList.add("single-hidden");
+      } else {
+        pageLeft.innerHTML = recordHtml;
+        pageLeft.classList.remove("hidden");
+        pageRight.innerHTML = `<div class="running-header">수석의 공부법 기본편 · 총평</div><div class="page-header-line"></div>` + commentHtml;
+        pageRight.classList.remove("hidden");
+        pageRight.classList.remove("single-hidden");
+      }
       prevBtn.disabled = true; nextBtn.disabled = true;
       window._summaryData = { answers: all, summary: s };
     }

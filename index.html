@@ -10,7 +10,6 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
     rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --paper: #f8f3e8;
@@ -203,11 +202,11 @@
     }
 
     .page-left .page-num {
-      left: 52px;
+      left: 24px;
     }
 
     .page-right .page-num {
-      right: 52px;
+      right: 24px;
     }
 
     .page-header-line {
@@ -229,13 +228,13 @@
 
     .nav-btn {
       position: absolute;
-      bottom: 24px;
-      width: 30px;
-      height: 30px;
+      bottom: 38px;
+      width: 28px;
+      height: 28px;
       border: none;
       background: #a89278;
       color: #fff;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       cursor: pointer;
       border-radius: 50%;
       transition: all 0.25s;
@@ -243,12 +242,12 @@
       align-items: center;
       justify-content: center;
       z-index: 20;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
     }
 
     .nav-btn:hover {
       background: #bea68c;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .nav-btn:disabled {
@@ -257,11 +256,11 @@
     }
 
     .nav-prev {
-      left: 10px;
+      left: 16px;
     }
 
     .nav-next {
-      right: 10px;
+      right: 16px;
     }
 
     /* Typography */
@@ -907,31 +906,31 @@
         min-height: 0;
       }
 
-      .page-left .page-num {
-        left: 24px;
-      }
-
-      .page-right .page-num {
-        right: 24px;
-      }
-
       .page-right.single-hidden {
         display: none !important;
       }
 
       .nav-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 0.95rem;
-        bottom: 8px;
+        width: 26px;
+        height: 26px;
+        font-size: 0.8rem;
+        bottom: 32px;
       }
 
       .nav-prev {
-        left: 8px;
+        left: 10px;
       }
 
       .nav-next {
-        right: 8px;
+        right: 10px;
+      }
+
+      .page-left .page-num {
+        left: 10px;
+      }
+
+      .page-right .page-num {
+        right: 10px;
       }
 
       .funnel-circle {
@@ -953,10 +952,10 @@
 <body>
   <div class="book-scene">
     <div class="book-shell">
-      <button class="nav-btn nav-prev" id="prevBtn" aria-label="이전 페이지">‹</button>
-      <button class="nav-btn nav-next" id="nextBtn" aria-label="다음 페이지">›</button>
       <div class="book-spine"></div>
       <div class="book-pages">
+        <button class="nav-btn nav-prev" id="prevBtn" aria-label="이전 페이지">&#8249;</button>
+        <button class="nav-btn nav-next" id="nextBtn" aria-label="다음 페이지">&#8250;</button>
         <div class="book-gutter"></div>
         <div class="book-edge-right"></div>
         <div class="page page-left" id="pageLeft"></div>
@@ -1175,7 +1174,7 @@
         const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: chatHistory }) });
         removeTyping();
         if (!res.ok) { const err = await res.json().catch(() => ({})); addBubble(err.error || "다시 시도해줘!", "ai"); chatHistory.pop(); userTurnCount--; }
-        else { const data = await res.json(); let reply = data.reply || "음, 다시 말해줄래?"; reply = reply.replace(/\[[A-Z_]+(?::[^\]]*)?\]/gi, '').trim(); chatHistory.push({ role: "model", parts: [{ text: reply }] }); addBubble(reply, "ai"); }
+        else { const data = await res.json(); let reply = data.reply || "음, 다시 말해줄래?"; reply = reply.replace(/\[LAZY[:\s]*\w*\]/gi, '').replace(/\[TURN[:\s\d\/]*\]/gi, '').replace(/\[CONTEXT[^\]]*\]/gi, '').replace(/\[GENERATE_SUMMARY\]/gi, '').trim(); chatHistory.push({ role: "model", parts: [{ text: reply }] }); addBubble(reply, "ai"); }
       } catch { removeTyping(); addBubble("인터넷 연결 확인해줘!", "ai"); chatHistory.pop(); userTurnCount--; }
 
       updateTurnDots();
@@ -1255,11 +1254,9 @@
     <div class="summary-content">
       <p>${s.summary_left}</p>
       <p>${s.summary_right}</p>
+      <div class="quote-box" style="margin-top:18px;">${s.one_line}</div>
     </div>
-    <div style="display:flex; gap:8px; margin-top:16px;">
-      <button class="dl-btn" onclick="downloadPDF()">PDF로 저장하기</button>
-      <button class="dl-btn" style="background:#5a5040;" onclick="resetToStart()">처음으로</button>
-    </div>`;
+    <button class="dl-btn" onclick="downloadPDF()">PDF로 저장하기</button>`;
       if (isSingleMode()) {
         pageLeft.innerHTML = recordHtml + commentHtml;
         pageLeft.classList.remove("hidden");
@@ -1276,61 +1273,42 @@
       window._summaryData = { answers: all, summary: s };
     }
 
-    function resetToStart() {
-      if (confirm('처음으로 돌아가시겠습니까? 진행 중인 답변이 초기화됩니다.')) {
-        sessionStorage.clear();
-        window.location.reload();
-      }
-    }
-
     function downloadPDF() {
-      const d = window._summaryData; if (!d) return;
-      const a1 = (d.answers.answer1 || '(미작성)').replace(/\n/g, '<br>');
-      const a2 = (d.answers.answer2 || '(미작성)').replace(/\n/g, '<br>');
-      const a3 = (d.answers.answer3 || '(미작성)').replace(/\n/g, '<br>');
-      const sl = (d.summary.summary_left || '').replace(/\n/g, '<br>');
-      const sr = (d.summary.summary_right || '').replace(/\n/g, '<br>');
-      const ol = (d.summary.one_line || '').replace(/\n/g, '<br>');
-
-      const element = document.createElement('div');
-      element.style.width = '1000px';
-      element.style.padding = '40px';
-      element.style.fontFamily = '"Noto Sans KR", sans-serif';
-      element.style.color = '#2a2018';
-      element.style.background = '#f8f3e8';
-
-      element.innerHTML = `
-        <div style="display:flex; gap:40px;">
-          <div style="flex:1;">
-            <h1 style="font-size:22px; margin-bottom:10px; color:#7a5c1e; border-bottom:2px solid #c4a44a; padding-bottom:10px;">수석의 공부법 기본편 — 총평</h1>
-            <h2 style="font-size:16px; margin-bottom:15px; color:#2c2218;">오늘의 기록</h2>
-            <div style="font-size:12px; color:#7a5c1e; font-weight:700; margin-bottom:5px;">Q1. 공부하는 이유 3가지</div>
-            <div style="background:#fff; border-radius:8px; padding:15px; font-size:13px; margin-bottom:15px; border:1px solid #e8dfc8;">${a1}</div>
-            <div style="font-size:12px; color:#7a5c1e; font-weight:700; margin-bottom:5px;">Q2. 나를 위한 공부 목적</div>
-            <div style="background:#fff; border-radius:8px; padding:15px; font-size:13px; margin-bottom:15px; border:1px solid #e8dfc8;">${a2}</div>
-            <div style="font-size:12px; color:#7a5c1e; font-weight:700; margin-bottom:5px;">Q3. 오늘 배운 것 정리</div>
-            <div style="background:#fff; border-radius:8px; padding:15px; font-size:13px; margin-bottom:15px; border:1px solid #e8dfc8;">${a3}</div>
-          </div>
-          <div style="flex:1; border-left:1px solid #e8dfc8; padding-left:40px;">
-            <h1 style="font-size:22px; margin-bottom:10px; visibility:hidden;">&nbsp;</h1>
-            <h2 style="font-size:16px; margin-bottom:15px; color:#2c2218;">김수석 선생님의 한마디</h2>
-            <p style="font-size:13px; line-height:1.8; margin-bottom:15px;">${sl}</p>
-            <p style="font-size:13px; line-height:1.8; margin-bottom:15px;">${sr}</p>
-            <div style="border-left:4px solid #b8922e; padding:20px; background:#fff; font-style:italic; font-size:15px; line-height:1.6; border-radius:0 8px 8px 0; margin-top:30px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">${ol}</div>
-            <div style="margin-top:40px; text-align:right; font-size:11px; color:#a0927c;">ⓒ 수석의방</div>
-          </div>
-        </div>
-      `;
-
-      const opt = {
-        margin: 10,
-        filename: '수석의공부법_총평.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-      };
-
-      html2pdf().set(opt).from(element).save();
+      var d = window._summaryData; if (!d) return;
+      var a1 = (d.answers.answer1 || '(미작성)').replace(/\n/g, '<br>');
+      var a2 = (d.answers.answer2 || '(미작성)').replace(/\n/g, '<br>');
+      var a3 = (d.answers.answer3 || '(미작성)').replace(/\n/g, '<br>');
+      var sl = d.summary.summary_left || '';
+      var sr = d.summary.summary_right || '';
+      var ol = d.summary.one_line || '';
+      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>수석의 공부법 - 공부하는 이유</title>';
+      html += '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">';
+      html += '<style>@page{size:A4 landscape;margin:20mm 25mm;}*{margin:0;padding:0;box-sizing:border-box;}';
+      html += 'body{font-family:"Noto Sans KR",sans-serif;color:#2a2018;padding:20mm 25mm;display:flex;gap:40px;}';
+      html += '.col{flex:1;}h1{font-size:18px;font-weight:700;margin-bottom:6px;color:#7a5c1e;}';
+      html += 'h2{font-size:14px;font-weight:600;margin-bottom:12px;color:#7a5c1e;}';
+      html += '.divider{width:100%;height:1px;background:#c4a44a;margin:10px 0 20px;}';
+      html += '.label{font-size:11px;color:#7a5c1e;font-weight:500;margin-bottom:4px;margin-top:14px;}';
+      html += '.block{background:#f8f3e8;border-radius:6px;padding:10px 14px;font-size:12px;line-height:1.7;margin-bottom:4px;border:1px solid #e8dfc8;}';
+      html += 'p{font-size:12px;line-height:1.8;margin-bottom:10px;}';
+      html += '.quote{border-left:3px solid #b8922e;padding:10px 16px;margin-top:16px;background:#faf6ee;font-style:italic;font-size:13px;border-radius:0 6px 6px 0;}';
+      html += '.footer{position:fixed;bottom:10mm;left:0;right:0;text-align:center;font-size:9px;color:#a0927c;}';
+      html += '@media print{body{padding:0;}}<\/style><\/head><body>';
+      html += '<div class="col"><h1>수석의 공부법 - 공부하는 이유<\/h1><div class="divider"><\/div>';
+      html += '<h2>오늘의 기록<\/h2>';
+      html += '<div class="label">Q1. 공부하는 이유 3가지<\/div><div class="block">' + a1 + '<\/div>';
+      html += '<div class="label">Q2. 나를 위한 공부 목적<\/div><div class="block">' + a2 + '<\/div>';
+      html += '<div class="label">Q3. 오늘 배운 것 정리<\/div><div class="block">' + a3 + '<\/div>';
+      html += '<\/div><div class="col"><h1>\u00a0<\/h1><div class="divider"><\/div>';
+      html += '<h2>김수석 선생님의 한마디<\/h2>';
+      html += '<p>' + sl + '<\/p><p>' + sr + '<\/p>';
+      html += '<div class="quote">' + ol + '<\/div>';
+      html += '<\/div><div class="footer">\u24d2 수석의방<\/div><\/body><\/html>';
+      var w = window.open('', '_blank');
+      if (!w) { alert('팝업 차단을 해제해주세요.'); return; }
+      w.document.write(html);
+      w.document.close();
+      setTimeout(function () { w.print(); }, 600);
     }
     window.downloadPDF = downloadPDF;
   </script>

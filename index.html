@@ -75,11 +75,29 @@
       display: flex;
       width: 100%;
       max-width: 1100px;
-      height: min(calc(100dvh - 60px), 760px);
+      /* height: min(calc(100dvh - 60px), 760px); */
+      /* Removed in favor of aspect-ratio logic */
+      max-height: calc(100vh - 50px);
+      min-height: 0;
       background: var(--cover);
       border-radius: 4px 10px 10px 4px;
       padding: 6px 6px 6px 0;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25), 0 16px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (min-width: 768px) {
+      .book-aspect {
+        /* 1. 비율 유지: 두 페이지를 합친 약 1.3:1의 비율을 강제합니다. */
+        aspect-ratio: 1.3 / 1;
+
+        /* 2. 높이 기반 너비 제한: 
+           화면 전체 높이(100vh)에서 여백(50px)을 뺀만큼을 '최대 높이'로 잡고,
+           비율(1.3)을 곱해 '최대 너비'를 계산합니다. 
+           결과적으로 화면 높이가 짧아지면 책의 너비도 함께 줄어들어 화면 밖으로 나가지 않습니다. */
+        max-width: calc((100vh - 50px) * 1.3) !important;
+
+        flex: none !important;
+      }
     }
 
     .book-spine {
@@ -153,8 +171,8 @@
     .book-gutter::after {
       content: '';
       position: absolute;
-      top: 2%;
-      bottom: 2%;
+      top: 0;
+      bottom: 0;
       left: 50%;
       width: 1px;
       background: rgba(30, 24, 15, 0.1);
@@ -773,6 +791,7 @@
     .chat-send {
       width: 36px;
       height: 36px;
+      flex-shrink: 0;
       border-radius: 50%;
       border: none;
       background: var(--accent);
@@ -951,7 +970,7 @@
 
 <body>
   <div class="book-scene">
-    <div class="book-shell">
+    <div class="book-shell book-aspect relative flex flex-1">
       <div class="book-spine"></div>
       <div class="book-pages">
         <button class="nav-btn nav-prev" id="prevBtn" aria-label="이전 페이지">&#8249;</button>
@@ -1103,6 +1122,7 @@
 
     let chatHistory = [], chatContext = "", isChatLoading = false;
     let userTurnCount = 0, maxTurns = 7, currentGateId = "", isFinalQuestion = false;
+    const chatSessions = {}; // Store chat state by gateId for persistence
 
     function gatherAllAnswers() {
       const a = {};["answer1", "answer2", "answer3"].forEach(id => { const s = sessionStorage.getItem(id); if (s && s.trim()) a[id] = s.trim(); }); return a;
@@ -1117,7 +1137,11 @@
 
     function openChat() { chatOverlay.classList.add("open"); chatPanel.classList.add("open"); setTimeout(() => chatInput.focus(), 350); }
     function closeChat() { chatOverlay.classList.remove("open"); chatPanel.classList.remove("open"); }
-    chatOverlay.onclick = closeChat; chatClose.onclick = closeChat;
+    chatOverlay.addEventListener('click', (e) => {
+      // Only close if the backdrop is clicked directly, prevents accidental closing on mobile
+      if (e.target === chatOverlay) closeChat();
+    });
+    chatClose.onclick = closeChat;
 
     function addBubble(t, type) { const d = document.createElement("div"); d.className = `chat-bubble ${type}`; d.textContent = t; chatMessages.appendChild(d); chatMessages.scrollTop = chatMessages.scrollHeight; }
     function showTyping() { const d = document.createElement("div"); d.className = "chat-bubble typing"; d.id = "typingIndicator"; d.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>'; chatMessages.appendChild(d); chatMessages.scrollTop = chatMessages.scrollHeight; }
@@ -1133,11 +1157,46 @@
       return false;
     }
 
+    function saveChatSession() {
+      if (!currentGateId) return;
+      chatSessions[currentGateId] = {
+        history: [...chatHistory],
+        messagesHTML: chatMessages.innerHTML,
+        turnCount: userTurnCount,
+        maxTurns: maxTurns,
+        isFinal: isFinalQuestion,
+        context: chatContext
+      };
+    }
+
     function startChat(gateId, ctx, initialText, final) {
+      currentGateId = gateId;
+      if (chatSessions[gateId]) {
+        const sess = chatSessions[gateId];
+        chatHistory = sess.history;
+        chatMessages.innerHTML = sess.messagesHTML;
+        userTurnCount = sess.turnCount;
+        maxTurns = sess.maxTurns;
+        isFinalQuestion = sess.isFinal;
+        chatContext = sess.context;
+
+        if (userTurnCount >= maxTurns) {
+          showActions();
+          btnNextPage.textContent = isFinalQuestion ? '총평 보기 →' : '다음 페이지로 →';
+        } else {
+          showInputArea();
+        }
+        updateTurnDots();
+        openChat();
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return;
+      }
+
       chatHistory = []; chatMessages.innerHTML = ''; chatContext = ctx;
-      userTurnCount = 0; maxTurns = 7; currentGateId = gateId; isFinalQuestion = !!final;
+      userTurnCount = 0; maxTurns = 7; isFinalQuestion = !!final;
       showInputArea(); updateTurnDots();
       addBubble(initialText, "user");
+      saveChatSession();
       openChat();
       sendToAI(initialText, true);
     }
@@ -1174,8 +1233,8 @@
         const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: chatHistory }) });
         removeTyping();
         if (!res.ok) { const err = await res.json().catch(() => ({})); addBubble(err.error || "다시 시도해줘!", "ai"); chatHistory.pop(); userTurnCount--; }
-        else { const data = await res.json(); let reply = data.reply || "음, 다시 말해줄래?"; reply = reply.replace(/\[LAZY[:\s]*\w*\]/gi, '').replace(/\[TURN[:\s\d\/]*\]/gi, '').replace(/\[CONTEXT[^\]]*\]/gi, '').replace(/\[GENERATE_SUMMARY\]/gi, '').trim(); chatHistory.push({ role: "model", parts: [{ text: reply }] }); addBubble(reply, "ai"); }
-      } catch { removeTyping(); addBubble("인터넷 연결 확인해줘!", "ai"); chatHistory.pop(); userTurnCount--; }
+        else { const data = await res.json(); let reply = data.reply || "음, 다시 말해줄래?"; reply = reply.replace(/\[LAZY[:\s]*\w*\]/gi, '').replace(/\[TURN[:\s\d\/]*\]/gi, '').replace(/\[CONTEXT[^\]]*\]/gi, '').replace(/\[GENERATE_SUMMARY\]/gi, '').trim(); chatHistory.push({ role: "model", parts: [{ text: reply }] }); addBubble(reply, "ai"); saveChatSession(); }
+      } catch { removeTyping(); addBubble("인터넷 연결 확인해줘!", "ai"); chatHistory.pop(); userTurnCount--; saveChatSession(); }
 
       updateTurnDots();
       isChatLoading = false; chatSend.disabled = false;
@@ -1195,6 +1254,7 @@
       if (!t || isChatLoading) return;
       chatInput.value = '';
       addBubble(t, "user");
+      saveChatSession();
       sendToAI(t, false);
     }
     chatSend.onclick = handleSend;
